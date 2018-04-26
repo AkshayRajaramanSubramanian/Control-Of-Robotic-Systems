@@ -1,0 +1,24 @@
+A = [0 1 0 0 0 0;0 0 -1 0 -1 0;0 0 0 1 0 0;0 0 -0.55 0 -0.05 0;0 0 0 0 0 1;0 0 -0.1 0 -1.1 0];
+B = [0; 0.001;0; 0.00005;0;0.0001];
+C = [1 0 0 0 0 0;0 0 1 0 0 0;0 0 0 0 1 0];
+D = [0;0;0];
+control = [B A*B A^2*B A^3*B A^4*B A^5*B];
+controllability = (rank(control) == (size(A,1)));
+Q = 100*(C'*C);
+R = 1;
+K = lqr(A,B,Q,R);
+Ac = [(A-B*K)];
+Bc = [B];
+Cc = [C];
+Dc = [D];
+states = {'x' 'x_dot' 'theta1' 'theta1_dot' 'theta2' 'theta2_dot'};
+inputs = {'r'};
+outputs = {'x'; 'theta1';'theta2'};
+sys_cl = ss(Ac,Bc,Cc,Dc,'StateName',states,'InputName',inputs,'OutputName',outputs);
+t = 0:0.01:10000;
+r =0.2*ones(size(t));
+[y,t,x]=lsim(sys_cl,r,t);
+figure();
+[AX,H1,H2] = plotyy(t,y(:,2),t,y(:,3),'plot');
+figure();
+plot(t,y(:,1))
